@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* General Styles */
+
+.contact-container {
+  @apply flex flex-col items-center justify-center text-center px-4 py-8 max-w-4xl mx-auto;
+}
+
+.header {
+  @apply flex items-center justify-center space-x-4;
+}
+
+.logo {
+  @apply h-12; /* Adjust logo size */
+}
+
+.title {
+  @apply text-2xl font-bold text-black; /* Title text set to black */
+}
+
+.address {
+  @apply text-sm text-black mt-4; /* Address text set to black */
+}
+
+.about {
+  @apply text-base text-black mt-8; /* About section text set to black */
+}
+
+.about h3 {
+  @apply text-lg font-semibold text-black mt-4; /* Subheading text set to black */
+}
+
+.about ul {
+  @apply list-none pl-0 mt-2;
+}
+
+.about li {
+  @apply text-base text-black mt-2; /* List items text set to black */
+}
+
+.admin-container {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Full screen */
+}
+
+.user-info {
+  position: absolute;
+  top: 10px; /* Adjust the distance from the top */
+  right: 20px; /* Adjust the distance from the right */
+  font-family: 'Roboto', sans-serif; /* Use Roboto font */
+  font-weight: bold; /* Bold text */
+  font-size: 16px; /* Adjust font size as needed */
+}
