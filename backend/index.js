@@ -142,6 +142,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
+// Login code
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -291,7 +292,7 @@ app.delete('/students/:id', async (req, res) => {
 // Fetch all users
 app.get('/users', async (req, res) => {
     try {
-        const [users] = await db.query('SELECT id, username, f_name, l_name, email, role, mobile_number, birthday FROM users;');
+        const [users] = await db.query('SELECT id, username, f_name, l_name, email, role, status, mobile_number, birthday FROM users;');
         res.status(200).json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -302,7 +303,7 @@ app.get('/users', async (req, res) => {
 // Update a user
 app.put('/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { email, username, f_name, l_name, role, mobile_number, birthday } = req.body;
+    const { email, username, f_name, l_name, role, mobile_number, birthday, status } = req.body;
 
     if (!email || !username || !f_name || !l_name || !role) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -317,10 +318,11 @@ app.put('/users/:id', async (req, res) => {
                 l_name = ?, 
                 role = ?, 
                 mobile_number = ?, 
-                birthday = ? 
+                birthday = ?, 
+                status = ? 
             WHERE id = ?`;
 
-        const [result] = await db.query(query, [email, username, f_name, l_name, role, mobile_number, birthday, id]);
+        const [result] = await db.query(query, [email, username, f_name, l_name, role, mobile_number, birthday, status, id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found' });
@@ -417,6 +419,47 @@ app.post('/api/settings', upload.single('logo'), async (req, res) => {
     } catch (err) {
         console.error('Error updating company settings:', err);
         return res.status(500).send({ error: 'Failed to update company settings' });
+    }
+});
+
+// Get total number of registered students
+app.get('/api/students/count', async (req, res) => {
+    try {
+        const [result] = await db.query('SELECT COUNT(*) AS total FROM stud_profile');
+        res.status(200).json(result[0]);
+    } catch (err) {
+        console.error('Error fetching student count:', err);
+        res.status(500).json({ error: 'Failed to fetch student count' });
+    }
+});
+
+// Get distribution of students by section
+app.get('/api/students/distribution/section', async (req, res) => {
+    try {
+        const [result] = await db.query(`
+            SELECT section, COUNT(*) AS count 
+            FROM stud_profile 
+            GROUP BY section
+        `);
+        res.status(200).json(result);
+    } catch (err) {
+        console.error('Error fetching section distribution:', err);
+        res.status(500).json({ error: 'Failed to fetch section distribution' });
+    }
+});
+
+// Get distribution of students by course
+app.get('/api/students/distribution/course', async (req, res) => {
+    try {
+        const [result] = await db.query(`
+            SELECT course, COUNT(*) AS count 
+            FROM stud_profile 
+            GROUP BY course
+        `);
+        res.status(200).json(result);
+    } catch (err) {
+        console.error('Error fetching course distribution:', err);
+        res.status(500).json({ error: 'Failed to fetch course distribution' });
     }
 });
 

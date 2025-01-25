@@ -21,6 +21,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null); // Store the user's role
   const [activeNavIndex, setActiveNavIndex] = useState(0);
+  const [openLogoutModal, setOpenLogoutModal] = useState(false); // State to control modal visibility
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -40,37 +41,69 @@ function App() {
       setIsAuthenticated(true);
       setRole(decoded.role);
     }
+
+    // Retrieve the activeNavIndex from localStorage
+    const savedIndex = localStorage.getItem('activeNavIndex');
+    if (savedIndex !== null) {
+      setActiveNavIndex(Number(savedIndex)); // Convert to number
+    }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
     setRole(null); // Clear role
-    setActiveNavIndex(0);
-    window.location.href = '/login'; // Redirect to login
+    setActiveNavIndex(0); // Reset to "Dashboard" on logout
+    localStorage.removeItem('activeNavIndex'); // Remove saved active index from localStorage
+    setOpenLogoutModal(true); // Open modal after logout
   };
 
-  const roleBasedRoutes = {
-    admin: [
-      { path: '/dashboard', element: <Admin />, label: 'Dashboard', icon: <LayoutDashboard /> },
-      { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
-      { path: '/upload', element: <Upload />, label: 'Upload', icon: <UploadIcon /> },
-      { path: '/useraccount', element: <UserAccounts />, label: 'User Accounts', icon: <SquareUserRound /> },
-      { path: '/about', element: <About />, label: 'About', icon: <Info /> },
-      { path: '/settings', element: <SettingsForm />, label: 'Settings', icon: <Settings /> },
-    ],
-    faculty: [
-      { path: '/dashboard', element: <Faculty />, label: 'Dashboard', icon: <LayoutDashboard /> },
-      { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
-      { path: '/upload', element: <Upload />, label: 'Upload', icon: <UploadIcon /> },
-      { path: '/about', element: <About />, label: 'About', icon: <Info /> },
-    ],
-    teacher: [
-      { path: '/dashboard', element: <Teacher />, label: 'Dashboard', icon: <LayoutDashboard /> },
-      { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
-      { path: '/about', element: <About />, label: 'About', icon: <Info /> },
-    ],
+  const handleCloseLogoutModal = () => {
+    setOpenLogoutModal(false); // Close the modal
+    window.location.href = '/login'; // Redirect to login after modal is closed
   };
+
+  const handleNavClick = (index) => {
+    setActiveNavIndex(index);
+    localStorage.setItem('activeNavIndex', index); // Save to localStorage
+  };
+
+const roleBasedRoutes = {
+  admin: [
+    { path: '/admin', element: <Admin />, label: 'Dashboard', icon: <LayoutDashboard /> },
+    { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
+    { path: '/upload', element: <Upload />, label: 'Upload', icon: <UploadIcon /> },
+    { path: '/useraccount', element: <UserAccounts />, label: 'User Accounts', icon: <SquareUserRound /> },
+    { path: '/about', element: <About />, label: 'About', icon: <Info /> },
+    { 
+      path: '/settings', 
+      element: <SettingsForm onUpdate={() => {
+          const fetchUpdatedSettings = async () => {
+              try {
+                  const response = await axios.get('http://localhost:5000/api/settings');
+                  setSettings(response.data);
+              } catch (error) {
+                  console.error('Error fetching updated settings:', error);
+              }
+          };
+          fetchUpdatedSettings();
+      }} />, 
+      label: 'Settings', 
+      icon: <Settings /> 
+    },
+  ],
+  faculty: [
+    { path: '/faculty', element: <Faculty />, label: 'Dashboard', icon: <LayoutDashboard /> },
+    { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
+    { path: '/upload', element: <Upload />, label: 'Upload', icon: <UploadIcon /> },
+    { path: '/about', element: <About />, label: 'About', icon: <Info /> },
+  ],
+  teacher: [
+    { path: '/teacher', element: <Teacher />, label: 'Dashboard', icon: <LayoutDashboard /> },
+    { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
+    { path: '/about', element: <About />, label: 'About', icon: <Info /> },
+  ],
+};
 
   const generateRoutes = () => {
     if (!role) return null;
@@ -88,7 +121,7 @@ function App() {
         component={Link}
         to={route.path}
         selected={activeNavIndex === index}
-        onClick={() => setActiveNavIndex(index)}
+        onClick={() => handleNavClick(index)} // Use updated handler
         style={{
           backgroundColor: activeNavIndex === index ? settings.active_nav_index_color || '#1976d2' : 'transparent',
           padding: '10px 20px', // Add padding for space
@@ -157,6 +190,16 @@ function App() {
             {generateRoutes()}
             <Route path="/login" element={<Login onLoginSuccess={() => setIsAuthenticated(true)} />} />
             <Route path="/register" element={<Register />} />
+            {/* Default redirect to /login */}
+            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="/admin" element={isAuthenticated ? <Admin /> : <Navigate to="/admin" />} />
+            <Route path="/faculty" element={isAuthenticated ? <Faculty /> : <Navigate to="/faculty" />} />
+            <Route path="/teacher" element={isAuthenticated ? <Teacher /> : <Navigate to="/teacher" />} />
+            <Route path="/studentprofile" element={isAuthenticated ? <StudentProfile /> : <Navigate to="/studentprofile" />} />
+            <Route path="/upload" element={isAuthenticated ? <Upload /> : <Navigate to="/upload" />} />
+            <Route path="/useraccount" element={isAuthenticated ? <UserAccounts /> : <Navigate to="/useraccount" />} />
+            <Route path="/about" element={isAuthenticated ? <About /> : <Navigate to="/about" />} />
+            <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/settings" />} />
           </Routes>
         </Box>
         
@@ -183,6 +226,17 @@ function App() {
           </Typography>
         </Box>
       </Box>
+
+      {/* Logout Modal */}
+      <Dialog open={openLogoutModal} onClose={handleCloseLogoutModal}>
+        <DialogTitle>Logged Out</DialogTitle>
+        <DialogContent>
+          <Typography>You have successfully logged out.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseLogoutModal} color="error" variant="contained">OK</Button>
+        </DialogActions>
+      </Dialog>
     </Router>
   );
 }

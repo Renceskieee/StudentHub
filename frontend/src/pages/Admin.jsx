@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../index.css';
+import Dashboard from './Dashboard';
 
 const Admin = () => {
     const [userData, setUserData] = useState({ firstName: '', lastName: '', role: '' });
@@ -23,8 +24,9 @@ const Admin = () => {
     }, []);
 
     return (
-        <div className="admin-container">
-            <h1 className="user-info">Welcome, {userData.firstName} {userData.lastName} ({userData.role})</h1>
+        <div>
+            {/* Call the Dashboard component */}
+            <Dashboard />
         </div>
     );
 };

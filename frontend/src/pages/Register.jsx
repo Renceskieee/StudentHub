@@ -116,7 +116,7 @@ const Register = () => {
                     <p>Registration completed successfully! You will be redirected shortly.</p>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseSuccess} color="primary">Close</Button>
+                    <Button onClick={handleCloseSuccess} color="error" variant="contained">Close</Button>
                 </DialogActions>
             </Dialog>
 

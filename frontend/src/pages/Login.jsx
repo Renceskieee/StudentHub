@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link
+import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography } from '@mui/material';
 
 const Login = ({ onLoginSuccess }) => { 
     const [formData, setFormData] = useState({ email: '', password: '' });
     const navigate = useNavigate();
     
-    // State for dialog
     const [openSuccess, setOpenSuccess] = useState(false);
     const [openError, setOpenError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -22,27 +21,42 @@ const Login = ({ onLoginSuccess }) => {
             localStorage.setItem('token', response.data.token);
             onLoginSuccess();
     
-            const decoded = JSON.parse(atob(response.data.token.split('.')[1]));
-            console.log("Decoded token:", decoded);
-    
-            if (decoded.role === 'admin') {
-                navigate('/dashboard');
-            } else if (decoded.role === 'faculty') {
-                navigate('/dashboard');
-            } else if (decoded.role === 'teacher') {
-                navigate('/dashboard');
-            } else {
-                setErrorMessage('Role not recognized.');
+            // Decode token
+            let decoded;
+            try {
+                decoded = JSON.parse(atob(response.data.token.split('.')[1]));
+                console.log("Decoded token:", decoded);
+            } catch (err) {
+                console.error("Token decoding error:", err);
+                setErrorMessage('Failed to process user role. Please contact support.');
                 setOpenError(true);
+                return;
             }
+    
+            setOpenSuccess(true); // Open the success modal
+    
+            // Delay navigation to allow the modal to display
+            setTimeout(() => {
+                if (decoded.role === 'admin') {
+                    navigate('/admin');
+                } else if (decoded.role === 'faculty') {
+                    navigate('/faculty');
+                } else if (decoded.role === 'teacher') {
+                    navigate('/teacher');
+                } else {
+                    setErrorMessage('Role not recognized.');
+                    setOpenError(true);
+                }
+            }, 2000);
         } catch (error) {
             console.error("Login error:", error.response?.data || error.message);
     
-            // Show a relevant error message
-            setErrorMessage(error.response?.data?.error || 'An error occurred during login. Please try again.');
+            setErrorMessage(
+                error.response?.data?.error || 'An error occurred during login. Please try again.'
+            );
             setOpenError(true);
         }
-    };        
+    };            
     
     const handleCloseSuccess = () => {
         setOpenSuccess(false);
@@ -87,7 +101,7 @@ const Login = ({ onLoginSuccess }) => {
                     onClick={handleLogin} 
                     variant="outlined" 
                     style={{ 
-                        backgroundColor: '#B60000',  // Set background color
+                        backgroundColor: '#B60000',
                         color: '#FFEA00',  
                         marginLeft: 'auto' 
                     }}
@@ -112,7 +126,7 @@ const Login = ({ onLoginSuccess }) => {
                     <p>Welcome back! You will be redirected shortly.</p>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseSuccess} color="error">Close</Button>
+                    <Button onClick={handleCloseSuccess} color="error" variant="contained">Close</Button>
                 </DialogActions>
             </Dialog>
 
@@ -123,7 +137,7 @@ const Login = ({ onLoginSuccess }) => {
                     <p>{errorMessage}</p>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseError} color="error">Close</Button>
+                    <Button onClick={handleCloseError} color="error" variant="contained">Close</Button>
                 </DialogActions>
             </Dialog>
         </Container>

@@ -30,6 +30,7 @@ const UserAccounts = () => {
         role: '',
         mobile_number: '',
         birthday: '',
+        status: '',
     });
     const [editUser, setEditUser] = useState(null);
     const [snackbar, setSnackbar] = useState({
@@ -68,6 +69,7 @@ const UserAccounts = () => {
             role: '',
             mobile_number: '',
             birthday: '',
+            status: '',
         });
         setEditUser(null);
     };
@@ -113,12 +115,27 @@ const UserAccounts = () => {
             role: user.role || '',
             mobile_number: user.mobile_number || '',
             birthday: user.birthday || '',
+            status: user.status || '',
         });
-    };    
+    };
 
     const handleCloseSnackbar = () => {
         setSnackbar({ ...snackbar, open: false });
     };
+
+    const renderStatusDot = (status) => {
+        return (
+            <span
+                style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    backgroundColor: status === 'active' ? 'green' : 'grey',
+                    display: 'inline-block',
+                }}
+            ></span>
+        );
+    };    
 
     return (
         <Container>
@@ -187,6 +204,17 @@ const UserAccounts = () => {
                                 shrink: true,
                             }}
                         />
+                        <FormControl fullWidth sx={{ marginBottom: '10px' }}>
+                            <InputLabel>Status</InputLabel>
+                            <Select
+                                value={formData.status}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                label="Status"
+                            >
+                                <MenuItem value="active">Active</MenuItem>
+                                <MenuItem value="not active">Inactive</MenuItem>
+                            </Select>
+                        </FormControl>
                         <Button onClick={updateUser} variant="contained" color="error" sx={{ marginTop: '10px' }}>
                             Update User
                         </Button>
@@ -200,28 +228,28 @@ const UserAccounts = () => {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Username</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>First Name</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Last Name</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Email</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Role</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Mobile Number</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Birthday</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Actions</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Username</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>First Name</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Last Name</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Email</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Role</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Mobile Number</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {users.map((user) => (
                         <TableRow key={user.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{user.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>
+                                {renderStatusDot(user.status)}
+                            </TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.username}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.f_name}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.l_name}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.email}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.role}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.mobile_number}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{new Date(user.birthday).toLocaleDateString('en-US')}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
                                 <IconButton onClick={() => handleEditClick(user)} color="primary">
                                     <Edit />

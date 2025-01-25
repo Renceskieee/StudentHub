@@ -43,14 +43,42 @@
 .admin-container {
   position: relative;
   width: 100%;
-  height: 100vh; /* Full screen */
 }
 
 .user-info {
   position: absolute;
-  top: 10px; /* Adjust the distance from the top */
+  top: -20px; /* Adjust the distance from the top */
   right: 20px; /* Adjust the distance from the right */
   font-family: 'Roboto', sans-serif; /* Use Roboto font */
   font-weight: bold; /* Bold text */
   font-size: 16px; /* Adjust font size as needed */
 }
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevents extra pages */
+  }
+
+  #print-content, #print-content * {
+      visibility: visible; /* Show only the specific content */
+  }
+
+  #print-content {
+      position: absolute; /* Ensure proper positioning */
+      top: 0;
+      left: 0;
+      width: 100%;
+  }
+
+  .no-print {
+      display: none !important; /* Ensure no buttons or irrelevant content shows */
+  }
+}
+
