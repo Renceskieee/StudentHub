@@ -70,7 +70,7 @@ function App() {
 
 const roleBasedRoutes = {
   admin: [
-    { path: '/admin', element: <Admin />, label: 'Dashboard', icon: <LayoutDashboard /> },
+    { path: '/dashboard', element: <Admin />, label: 'Dashboard', icon: <LayoutDashboard /> },
     { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
     { path: '/upload', element: <Upload />, label: 'Upload', icon: <UploadIcon /> },
     { path: '/useraccount', element: <UserAccounts />, label: 'User Accounts', icon: <SquareUserRound /> },
@@ -93,13 +93,13 @@ const roleBasedRoutes = {
     },
   ],
   faculty: [
-    { path: '/faculty', element: <Faculty />, label: 'Dashboard', icon: <LayoutDashboard /> },
+    { path: '/dashboard', element: <Faculty />, label: 'Dashboard', icon: <LayoutDashboard /> },
     { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
     { path: '/upload', element: <Upload />, label: 'Upload', icon: <UploadIcon /> },
     { path: '/about', element: <About />, label: 'About', icon: <Info /> },
   ],
   teacher: [
-    { path: '/teacher', element: <Teacher />, label: 'Dashboard', icon: <LayoutDashboard /> },
+    { path: '/dashboard', element: <Teacher />, label: 'Dashboard', icon: <LayoutDashboard /> },
     { path: '/studentprofile', element: <StudentProfile />, label: 'Student Profiles', icon: <UserRoundPen /> },
     { path: '/about', element: <About />, label: 'About', icon: <Info /> },
   ],
@@ -188,13 +188,29 @@ const roleBasedRoutes = {
           <Toolbar />
           <Routes>
             {generateRoutes()}
-            <Route path="/login" element={<Login onLoginSuccess={() => setIsAuthenticated(true)} />} />
+            <Route
+              path="/login"
+              element={
+                <Login
+                  onLoginSuccess={(userRole) => {
+                    setIsAuthenticated(true);
+                    setRole(userRole);
+                    const defaultRoute = {
+                      admin: '/admin',
+                      faculty: '/faculty',
+                      teacher: '/teacher',
+                    }[userRole];
+                    window.location.href = defaultRoute || '/dashboard'; // Redirect to default route
+                  }}
+                />
+              }
+            />
             <Route path="/register" element={<Register />} />
             {/* Default redirect to /login */}
             <Route path="*" element={<Navigate to="/login" />} />
-            <Route path="/admin" element={isAuthenticated ? <Admin /> : <Navigate to="/admin" />} />
-            <Route path="/faculty" element={isAuthenticated ? <Faculty /> : <Navigate to="/faculty" />} />
-            <Route path="/teacher" element={isAuthenticated ? <Teacher /> : <Navigate to="/teacher" />} />
+            <Route path="/dashboard" element={isAuthenticated ? <Admin /> : <Navigate to="/dashboard" />} />
+            <Route path="/dashboard" element={isAuthenticated ? <Faculty /> : <Navigate to="/dashboard" />} />
+            <Route path="/dashboard" element={isAuthenticated ? <Teacher /> : <Navigate to="/dashboard" />} />
             <Route path="/studentprofile" element={isAuthenticated ? <StudentProfile /> : <Navigate to="/studentprofile" />} />
             <Route path="/upload" element={isAuthenticated ? <Upload /> : <Navigate to="/upload" />} />
             <Route path="/useraccount" element={isAuthenticated ? <UserAccounts /> : <Navigate to="/useraccount" />} />

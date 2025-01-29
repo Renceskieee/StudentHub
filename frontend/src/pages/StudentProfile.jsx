@@ -23,6 +23,7 @@ import { Grid, Container, TextField, MenuItem } from '@mui/material';
 const StudentProfile = () => {
     const [students, setStudents] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
     const [formData, setFormData] = useState({
         student_number: '',
         email: '',
